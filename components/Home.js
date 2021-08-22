@@ -29,6 +29,7 @@ export default function Home({ navigation }) {
         <TouchableOpacity
           style={styles.button}
           onPress={onPress}
+          testID="filter-button"
         >
           <Text style={styles.text}>Filtrar por favoritos</Text>
         </TouchableOpacity>
@@ -36,7 +37,8 @@ export default function Home({ navigation }) {
       <View style={styles.content}>
         <Panel
           dataCharacters={filtered ? characters.filter(c => c.favorite === true) : characters}
-          navigation={navigation} />
+          navigation={navigation} 
+          />
       </View>
     </View>
   );

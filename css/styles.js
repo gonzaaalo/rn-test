@@ -46,6 +46,7 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   description: {
+    color: '#fff',
     fontSize: 18,
   },
   centeredView: {
@@ -138,6 +139,10 @@ const styles = StyleSheet.create({
   },
   smallContent:{
     width: "70%"
+  },
+  flatList:{
+    flexGrow: 0, 
+    minHeight: "30%"
   }
 });
 

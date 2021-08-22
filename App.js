@@ -1,6 +1,5 @@
 import React from 'react';
-import { NavigationContainer, } from '@react-navigation/native';
-import { StatusBar } from 'expo-status-bar';
+import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from "./components/Home";
 import Profile from './components/Profile';
@@ -29,7 +28,15 @@ export default function App() {
             },
           }}
         />
-        <Stack.Screen name="Profile" component={Profile} />
+        <Stack.Screen name="Profile" component={Profile} options={{
+            title: 'Star wars characters', 
+            headerStyle: {
+              backgroundColor: "#1B1A1A",              
+            },
+            headerTitleStyle: {
+              color: "#ffffff",
+            },
+          }}/>
       </Stack.Navigator>
     </NavigationContainer>
     </PersistGate>

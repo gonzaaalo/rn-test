@@ -1,23 +1,23 @@
-import React, { useState } from 'react';
-import { Alert, FlatList, Modal, Pressable, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Alert, FlatList, Modal, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import styles from "../css/styles.js";
 
 export default function Panel({ dataCharacters, navigation }) {
-  const characters = useSelector(state => state.characters);
   const dispatch = useDispatch();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalRemove, setModalRemove] = useState(null);
+  const [dataToShow, setDataToShow] = useState([])
   const ITEMS_PER_PAGE = 6;
   const PAGE_MAX = Math.ceil(dataCharacters.length / ITEMS_PER_PAGE);
   const [page, setPage] = useState(1);
 
-  const Item = ({ id, item }) => (
+  const Item = ({ item }) => (
     <View style={styles.item}>
       <View style={styles.col1}>
-        <TouchableOpacity onPress={() => { setModalVisible(true); setModalRemove(id) }} style={styles.item}>
+        <TouchableOpacity testID={"delete-button-" + item.name} onPress={() => { setModalVisible(true); setModalRemove(item.url) }} style={styles.item}>
           <Icon
             name="times"
             size={10}
@@ -26,8 +26,8 @@ export default function Panel({ dataCharacters, navigation }) {
         </TouchableOpacity>
       </View>
       <View style={styles.col2}>
-        <TouchableOpacity onPress={() =>
-          navigation.navigate('Profile', { dataCharacter: item, idCharacter: id })}>
+        <TouchableOpacity testID={"item-" + item.name} onPress={() =>
+          navigation.navigate('Profile', { dataCharacter: item, idCharacter: item.url })}>
           <View style={styles.name}>
             <Text style={styles.text}>{item.name}</Text>
             {item.favorite && <Icon name="star" size={8} color="yellow" />}
@@ -38,42 +38,52 @@ export default function Panel({ dataCharacters, navigation }) {
     </View>
   );
 
-  const OnHandleRemove = (id) => {
-    dispatch({ type: "DELETE_CHARACTER", idCharacter: id });
+  const OnHandleRemove = (url) => {
+    dispatch({ type: "DELETE_CHARACTER", idCharacter: url });
     setModalVisible(false);
   };
 
-  const renderItem = ({ item, index }) => {
+  const renderItem = ({ item }) => {
     return (
       <Item
-        id={index}
         item={item}
       />
     );
   };
 
+  useEffect(() => {
+    if(dataCharacters) setDataToShow (dataCharacters.sort((a,b)=> a.name.localeCompare(b.name)).slice((ITEMS_PER_PAGE * page) - ITEMS_PER_PAGE, ITEMS_PER_PAGE * page));
+  }, [dataCharacters, page])
+
   return (
     <View style={styles.container}>
+      { dataToShow.length === 0 && page ===1 ? 
+      <Text testID="nodata-text" style={styles.textStyle}>No data available.. Come back later!</Text>
+      :
+      <>
       <FlatList
-        data={dataCharacters && dataCharacters.slice((ITEMS_PER_PAGE * page) - ITEMS_PER_PAGE, ITEMS_PER_PAGE * page)}
-        renderItem={({ item, index }) => renderItem({ item, index })}
-        keyExtractor={(item, index) => index}
-        numColumns={2}
-        style={{flexGrow: 0}}
-      />
+      data={dataToShow}
+      renderItem={({ item, index }) => renderItem({ item, index })}
+      keyExtractor={(item, index) => index}
+      numColumns={2}
+      style={styles.flatList}
+    />
 
     <View style={styles.pagination}>
-                <Pressable
-                  onPress={() => { if ((Number(page) - 1) > 0) setPage(Number(page) - 1) }}
-                >
-                  <Text style={styles.textStyle}>◀ Volver</Text>
-                </Pressable>
-                <Pressable
-                  onPress={() => { if ((Number(page) + 1) <= PAGE_MAX) setPage(Number(page) + 1) }}
-                >
-                  <Text style={styles.textStyle}>Siguiente ▶</Text>
-                </Pressable>
-              </View>
+      {((Number(page) - 1) > 0) &&
+        <Pressable onPress={() => { setPage(Number(page) - 1) }} testID="back-button">
+          <Text style={styles.textStyle}>◀ Anterior</Text>
+        </Pressable>
+      }
+      {((Number(page) + 1) <= PAGE_MAX) &&
+        <Pressable onPress={() => { setPage(Number(page) + 1) }} testID="next-button">
+        <Text style={styles.textStyle}>Siguiente ▶</Text>
+      </Pressable>
+      }        
+    </View>
+    </>
+      }
+      
 
       {modalVisible &&
         <Modal

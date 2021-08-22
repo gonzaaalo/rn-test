@@ -5,7 +5,6 @@ const getCharacters = async () => {
         'https://swapi.dev/api/people'
       );
       const json = await response.json();
-      //Guardar resultado en AsyncStorage
       return json.results;
   } catch (error) {
     console.error(error);
